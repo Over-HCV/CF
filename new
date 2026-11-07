@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+# Uso: new [URL o ID]   (el argumento es opcional; solo sirve para avisarte
+#                          si hiciste clic en una pestaña distinta)
+# Espera a que hagas clic en Competitive Companion en la página del problema
+# y crea probs/<ID>/ con sol.cpp y los ejemplos.
+exec python3 "$(dirname "$0")/.tools/companion.py" "$@"

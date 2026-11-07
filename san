@@ -1,0 +1,36 @@
+#!/usr/bin/env bash
+# Uso:
+#   san probs/69A           compila con sanitizers y corre cada ejemplo
+#   san 69A                 lo mismo
+#   san x.cpp in.txt        solo con esa entrada
+#
+# clang++ + AddressSanitizer + UndefinedBehaviorSanitizer: detecta memoria
+# inválida, overflow de enteros, etc. (GCC de Homebrew en Mac no los trae.)
+set -uo pipefail
+root="$(cd "$(dirname "$0")" && pwd)"
+
+a="${1:-.}"; a="${a%/}"
+if   [[ -f "$a" ]];                    then src="$a"
+elif [[ -f "$a/sol.cpp" ]];            then src="$a/sol.cpp"
+elif [[ -f "$root/probs/$a/sol.cpp" ]]; then src="$root/probs/$a/sol.cpp"
+else echo "No encuentro el problema '$a' (¿existe probs/$a/sol.cpp?)"; exit 1
+fi
+
+dir="$(cd "$(dirname "$src")" && pwd)"
+mkdir -p "$root/build"
+bin="$root/build/$(basename "$dir")_$(basename "${src%.cpp}")_san"
+
+clang++ -std=c++23 -O1 -g \
+  -DLOCAL -I "$root/.tools/include" \
+  -fsanitize=address,undefined -fno-omit-frame-pointer -fno-sanitize-recover=undefined \
+  "$src" -o "$bin" || { echo "✘ No compiló"; exit 1; }
+
+if [[ $# -ge 2 ]]; then "$bin" < "$2"; exit; fi
+if [[ ! -f "$dir/1.in" ]]; then "$bin"; exit; fi
+
+i=1
+while [[ -f "$dir/$i.in" ]]; do
+  echo "--- Ejemplo $i"
+  "$bin" < "$dir/$i.in" || echo "✘ falló (código $?)"
+  i=$((i + 1))
+done

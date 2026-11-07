@@ -1,0 +1,20 @@
+{
+  "manifest_version": 3,
+  "name": "CF → VS Code",
+  "version": "1.0.0",
+  "description": "Envía el problema de Codeforces abierto (enunciado, imágenes y ejemplos) a tu proyecto CF en VS Code.",
+  "permissions": ["activeTab", "scripting"],
+  "host_permissions": [
+    "https://codeforces.com/*",
+    "https://*.codeforces.com/*",
+    "https://*.codeforces.org/*",
+    "http://127.0.0.1:10045/*"
+  ],
+  "background": { "service_worker": "background.js" },
+  "action": { "default_title": "Enviar problema a VS Code (Cmd+I)" },
+  "commands": {
+    "_execute_action": {
+      "suggested_key": { "default": "Ctrl+I", "mac": "Command+I" }
+    }
+  }
+}

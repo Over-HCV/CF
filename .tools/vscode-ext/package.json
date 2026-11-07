@@ -1,0 +1,17 @@
+{
+  "name": "cf-helper",
+  "displayName": "CF Helper (local)",
+  "description": "Recibe problemas de Codeforces desde el navegador y abre enunciado + sol.cpp lado a lado.",
+  "publisher": "local",
+  "version": "0.0.2",
+  "license": "UNLICENSED",
+  "engines": { "vscode": "^1.80.0" },
+  "main": "./extension.js",
+  "activationEvents": ["workspaceContains:.tools/companion.py"],
+  "contributes": {
+    "commands": [
+      { "command": "cf.restart", "title": "CF: reiniciar la escucha de problemas" },
+      { "command": "cf.showLog", "title": "CF: ver registro" }
+    ]
+  }
+}

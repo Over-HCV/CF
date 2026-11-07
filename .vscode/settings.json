@@ -1,18 +1,28 @@
 {
-  // Competitive Programming Helper (CPH)
-  "cph.general.defaultLanguage": "cpp",
-  "cph.general.templateLocation": "/Volumes/SSD/World/External/Study/CF/template.cpp",
-  "cph.general.useShortCodeForcesName": true,
-  "cph.general.saveLocation": "/Volumes/SSD/World/External/Study/CF/.cph",
-  "cph.language.cpp.Command": "/opt/homebrew/bin/g++-15",
-  "cph.language.cpp.Args": "-std=c++23 -O2 -Wall -Wextra -Wshadow -Wconversion -DLOCAL -D_GLIBCXX_DEBUG -D_GLIBCXX_DEBUG_PEDANTIC -Wl,-stack_size,0x10000000",
-  "cph.language.cpp.SubmissionCompiler": "GNU G++23 14.2 (64 bit, msys2)",
+  // Solo en la terminal de VS Code de este proyecto:
+  //   PATH    → run / new / san funcionan sin "./"
+  //   CF_ROOT → ~/.zshrc carga los atajos r / n / s (.tools/aliases.zsh)
+  "terminal.integrated.env.osx": {
+    "PATH": "${workspaceFolder}:${env:PATH}",
+    "CF_ROOT": "${workspaceFolder}"
+  },
 
   "C_Cpp.default.compilerPath": "/opt/homebrew/bin/g++-15",
-  "files.exclude": {
-    "build": true,
-    ".cph": true,
-    "**/*.bin": true
+  // new / run / san son scripts de bash (sin esto, "new" se confunde con el header <new> de C++)
+  "files.associations": {
+    "new": "shellscript",
+    "run": "shellscript",
+    "san": "shellscript"
   },
+  "files.exclude": {
+    "build": true
+  },
+  // Los enunciados se abren siempre renderizados (fórmulas e imágenes)
+  "workbench.editorAssociations": {
+    "**/probs/*/stmt.md": "vscode.markdown.preview.editor"
+  },
+  "markdown.math.enabled": true,
+  // Guarda solo al cambiar de foco (p. ej. al ir a la terminal a correr r)
+  "files.autoSave": "onFocusChange",
   "r.lsp.promptToInstall": false
 }
