@@ -1,12 +1,15 @@
 #!/usr/bin/env python3
-"""Recibe problemas desde Competitive Companion y crea probs/<ID>/.
+"""Recibe problemas desde el navegador y crea <sección>/<ID>/.
 
-Competitive Companion (extensión del navegador) lee el problema que tienes
-abierto y lo envía por HTTP a tu computador. Este script escucha ese envío
-y crea:
-    probs/69A/sol.cpp   plantilla + nombre, enlace y límites del problema
-    probs/69A/1.in      entrada del ejemplo 1
-    probs/69A/1.out     salida esperada del ejemplo 1
+La extensión de Chrome (Cmd+I) o Competitive Companion leen el problema que
+tienes abierto y lo envían por HTTP a tu computador. Este script escucha ese
+envío y crea, según la sección de Codeforces:
+    main/69A/       problemset normal y concursos (/problemset, /contest)
+    acmsguru/100/   archivo acmsguru
+    gym/100001A/    gym
+Dentro de cada carpeta:
+    sol.cpp         plantilla + nombre, enlace y límites del problema
+    1.in / 1.out    entrada y salida esperada del ejemplo 1
     ...
 Si sol.cpp ya existe, no se toca (solo se actualizan los ejemplos).
 Si viene de la extensión CF → VS Code, guarda también stmt.md e imágenes.
@@ -30,19 +33,23 @@ from pathlib import Path
 
 PORT = int(os.environ.get("CF_PORT", 10045))  # 10045: uno de los puertos que Competitive Companion ya trae
 ROOT = Path(__file__).resolve().parent.parent
-PROBLEMS = ROOT / "probs"
 TEMPLATE = ROOT / ".tools" / "template.cpp"
 
 
 def id_from_url(url: str) -> str | None:
-    # acmsguru: /problemsets/acmsguru/problem/99999/100 → sgu100
+    """URL del problema → ruta relativa a la raíz, p. ej. 'main/69A'."""
+    # /problemsets/acmsguru/problem/99999/100 → acmsguru/100
     m = re.search(r"/problemsets/acmsguru/problem/\d+/(\d+)", url)
     if m:
-        return "sgu" + m.group(1)
-    # /problemset/problem/69/A, /contest/69/problem/A, /gym/100001/problem/A → 69A
-    m = re.search(r"/(?:problemset/problem|contest|gym)/(\d+)/(?:problem/)?([A-Z]\d*)", url)
+        return f"acmsguru/{m.group(1)}"
+    # /gym/100001/problem/A → gym/100001A
+    m = re.search(r"/gym/(\d+)/problem/([A-Z]\d*)", url)
     if m:
-        return m.group(1) + m.group(2)
+        return f"gym/{m.group(1)}{m.group(2)}"
+    # /problemset/problem/69/A, /contest/69/problem/A → main/69A
+    m = re.search(r"/(?:problemset/problem|contest)/(\d+)/(?:problem/)?([A-Z]\d*)", url)
+    if m:
+        return f"main/{m.group(1)}{m.group(2)}"
     return None
 
 
@@ -51,7 +58,7 @@ def problem_id(data: dict) -> str:
     if pid:
         return pid
     slug = re.sub(r"[^A-Za-z0-9]+", "-", data.get("name", "")).strip("-")
-    return slug or "problema"
+    return f"otros/{slug or 'problema'}"
 
 
 def open_in_vscode(d: Path, fresh: bool) -> None:
@@ -97,8 +104,8 @@ def save_statement(d: Path, data: dict) -> None:
 
 
 def create(data: dict) -> str:
-    pid = problem_id(data)
-    d = PROBLEMS / pid
+    pid = problem_id(data)  # p. ej. "main/69A"
+    d = ROOT / pid
     d.mkdir(parents=True, exist_ok=True)
 
     for old in list(d.glob("*.in")) + list(d.glob("*.out")):
@@ -119,7 +126,7 @@ def create(data: dict) -> str:
 
     save_statement(d, data)
 
-    print(f"\n✔ {data.get('name', '')}  →  probs/{pid}/sol.cpp")
+    print(f"\n✔ {data.get('name', '')}  →  {pid}/sol.cpp")
     print(f"  {len(data.get('tests', []))} ejemplo(s) guardados" + (" + enunciado" if data.get("statement") else ""))
     if data.get("interactive"):
         print("  ⚠ Problema interactivo: los ejemplos locales no sirven para probarlo.")
@@ -146,7 +153,7 @@ class Handler(BaseHTTPRequestHandler):
         except Exception as e:  # un problema raro no debe tumbar el modo --watch
             print(f"✘ No pude guardar el problema: {e}", flush=True)
             return
-        if Handler.wanted and pid != Handler.wanted:
+        if Handler.wanted and Handler.wanted not in (pid, pid.split("/")[-1]):
             print(f"  ⚠ Esperabas {Handler.wanted} pero llegó {pid}. ¿Hiciste clic en otra pestaña?")
 
     def log_message(self, *args):  # silencia el log por defecto
@@ -158,7 +165,7 @@ def main():
     watch = "--watch" in args
     args = [a for a in args if a != "--watch"]
     if args:
-        Handler.wanted = id_from_url(args[0]) if "/" in args[0] else args[0]
+        Handler.wanted = id_from_url(args[0]) if "://" in args[0] else args[0].rstrip("/")
 
     try:
         server = HTTPServer(("127.0.0.1", PORT), Handler)

@@ -19,7 +19,7 @@
   },
   // Los enunciados se abren siempre renderizados (fórmulas e imágenes)
   "workbench.editorAssociations": {
-    "**/probs/*/stmt.md": "vscode.markdown.preview.editor"
+    "**/{main,acmsguru,gym}/*/stmt.md": "vscode.markdown.preview.editor"
   },
   "markdown.math.enabled": true,
   // Guarda solo al cambiar de foco (p. ej. al ir a la terminal a correr r)

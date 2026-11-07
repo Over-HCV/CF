@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Uso:
-#   san probs/69A           compila con sanitizers y corre cada ejemplo
+#   san main/69A           compila con sanitizers y corre cada ejemplo
 #   san 69A                 lo mismo
 #   san x.cpp in.txt        solo con esa entrada
 #
@@ -12,13 +12,17 @@ root="$(cd "$(dirname "$0")" && pwd)"
 a="${1:-.}"; a="${a%/}"
 if   [[ -f "$a" ]];                    then src="$a"
 elif [[ -f "$a/sol.cpp" ]];            then src="$a/sol.cpp"
-elif [[ -f "$root/probs/$a/sol.cpp" ]]; then src="$root/probs/$a/sol.cpp"
-else echo "No encuentro el problema '$a' (¿existe probs/$a/sol.cpp?)"; exit 1
+else
+  src=""
+  for sec in main acmsguru gym; do   # "69A" → main/69A, "100" → acmsguru/100, ...
+    if [[ -f "$root/$sec/$a/sol.cpp" ]]; then src="$root/$sec/$a/sol.cpp"; break; fi
+  done
+  [[ -n "$src" ]] || { echo "No encuentro el problema '$a' (¿existe main/$a/sol.cpp?)"; exit 1; }
 fi
 
 dir="$(cd "$(dirname "$src")" && pwd)"
 mkdir -p "$root/build"
-bin="$root/build/$(basename "$dir")_$(basename "${src%.cpp}")_san"
+bin="$root/build/$(basename "$(dirname "$dir")")_$(basename "$dir")_$(basename "${src%.cpp}")_san"
 
 clang++ -std=c++23 -O1 -g \
   -DLOCAL -I "$root/.tools/include" \

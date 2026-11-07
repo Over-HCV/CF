@@ -1,0 +1,107 @@
+#!/usr/bin/env python3
+"""pre-push: no deja subir soluciones de concursos de Codeforces que no han terminado.
+
+Git ejecuta este script justo antes de cada `git push`. Mira qué carpetas
+main/<concurso><letra>/ van en los commits que se van a subir, pregunta a la
+API oficial de Codeforces en qué fase está cada concurso y, si alguno no ha
+terminado (FINISHED), cancela el push.
+
+Se activa una vez por clon con:
+    git config core.hooksPath .tools/hooks
+Para saltarlo en un caso excepcional:  git push --no-verify
+"""
+from __future__ import annotations  # compatible con el python3 que trae macOS
+
+import json
+import re
+import subprocess
+import sys
+import urllib.request
+
+API = "https://codeforces.com/api/contest.list?gym=false"
+PHASES = {
+    "BEFORE": "todavía no empieza",
+    "CODING": "está en curso",
+    "PENDING_SYSTEM_TEST": "terminó, pero faltan las pruebas finales",
+    "SYSTEM_TEST": "está en pruebas finales",
+}
+
+
+def git(*args: str) -> str:
+    return subprocess.run(["git", *args], capture_output=True, text=True, check=True).stdout
+
+
+def pushed_files(stdin_lines: list[str]) -> set[str]:
+    """Archivos tocados por los commits que este push va a subir."""
+    files: set[str] = set()
+    for line in stdin_lines:
+        parts = line.split()
+        if len(parts) != 4:
+            continue
+        _local_ref, local_sha, _remote_ref, remote_sha = parts
+        if set(local_sha) == {"0"}:  # se está borrando una rama remota
+            continue
+        if set(remote_sha) == {"0"}:  # rama nueva: lo que no esté ya en el remoto
+            ranges = [[local_sha, "--not", "--remotes"]]
+        else:
+            ranges = [[f"{remote_sha}..{local_sha}"], [local_sha, "--not", "--remotes"]]
+        for rng in ranges:
+            try:
+                out = git("log", "--name-only", "--format=", *rng)
+            except subprocess.CalledProcessError:
+                continue  # p. ej. remote_sha no existe localmente: probar el siguiente rango
+            files.update(f for f in out.splitlines() if f)
+            break
+    return files
+
+
+def contest_ids(files: set[str]) -> set[int]:
+    ids = set()
+    for f in files:
+        m = re.match(r"main/(\d+)[A-Z]", f)
+        if m:
+            ids.add(int(m.group(1)))
+    return ids
+
+
+def fetch_contests() -> dict[int, dict]:
+    req = urllib.request.Request(API, headers={"User-Agent": "cf-pre-push-hook"})
+    with urllib.request.urlopen(req, timeout=20) as r:
+        data = json.load(r)
+    if data.get("status") != "OK":
+        raise RuntimeError(data.get("comment", "respuesta inesperada"))
+    return {c["id"]: c for c in data["result"]}
+
+
+def main() -> int:
+    ids = contest_ids(pushed_files(sys.stdin.read().splitlines()))
+    if not ids:
+        return 0
+
+    try:
+        contests = fetch_contests()
+    except Exception as e:
+        print(f"✘ pre-push: no pude consultar Codeforces ({e}).", file=sys.stderr)
+        print("  No sé si los concursos ya terminaron, así que cancelo el push.", file=sys.stderr)
+        print("  Si estás seguro de que terminaron:  git push --no-verify", file=sys.stderr)
+        return 1
+
+    blocked = []
+    for cid in sorted(ids):
+        c = contests.get(cid)
+        if c is None:
+            print(f"⚠ pre-push: no encontré el concurso {cid} en Codeforces; lo dejo pasar.", file=sys.stderr)
+        elif c["phase"] != "FINISHED":
+            blocked.append(f"  · {cid} — {c['name']}: {PHASES.get(c['phase'], c['phase'])}")
+
+    if blocked:
+        print("✘ pre-push: hay soluciones de concursos que no han terminado:", file=sys.stderr)
+        print("\n".join(blocked), file=sys.stderr)
+        print("  Publicarlas antes de tiempo va contra las reglas de Codeforces.", file=sys.stderr)
+        print("  Haz `git push` cuando terminen (tus commits quedan guardados localmente).", file=sys.stderr)
+        return 1
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

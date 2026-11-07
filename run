@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # Uso:
-#   run probs/69A           compila probs/69A/sol.cpp y prueba TODOS los ejemplos
+#   run main/69A           compila main/69A/sol.cpp y prueba TODOS los ejemplos
 #   run 69A                 lo mismo
-#   run                     dentro de probs/69A/, lo mismo
+#   run                     dentro de main/69A/, lo mismo
 #   run x.cpp in.txt        ejecuta x.cpp solo con esa entrada
 #
 # Compila con g++-15 en modo depuración (como el juez + chequeos extra).
@@ -13,13 +13,17 @@ root="$(cd "$(dirname "$0")" && pwd)"
 a="${1:-.}"; a="${a%/}"
 if   [[ -f "$a" ]];                    then src="$a"
 elif [[ -f "$a/sol.cpp" ]];            then src="$a/sol.cpp"
-elif [[ -f "$root/probs/$a/sol.cpp" ]]; then src="$root/probs/$a/sol.cpp"
-else echo "No encuentro el problema '$a' (¿existe probs/$a/sol.cpp?)"; exit 1
+else
+  src=""
+  for sec in main acmsguru gym; do   # "69A" → main/69A, "100" → acmsguru/100, ...
+    if [[ -f "$root/$sec/$a/sol.cpp" ]]; then src="$root/$sec/$a/sol.cpp"; break; fi
+  done
+  [[ -n "$src" ]] || { echo "No encuentro el problema '$a' (¿existe main/$a/sol.cpp?)"; exit 1; }
 fi
 
 dir="$(cd "$(dirname "$src")" && pwd)"
 mkdir -p "$root/build"
-bin="$root/build/$(basename "$dir")_$(basename "${src%.cpp}")"
+bin="$root/build/$(basename "$(dirname "$dir")")_$(basename "$dir")_$(basename "${src%.cpp}")"
 
 /opt/homebrew/bin/g++-15 -std=c++23 -O2 \
   -Wall -Wextra -Wshadow -Wconversion \

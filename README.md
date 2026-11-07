@@ -8,11 +8,11 @@
      **Borrar** si el problema tiene un solo caso, **Tab** si tiene varios.
      El cursor salta a `solve()`.
 
-   Los ejemplos quedan en `probs/69A/1.in`, `1.out`, …
+   Los ejemplos quedan en `main/69A/1.in`, `1.out`, …
 3. Escribe tu solución.
 4. Prueba:
    ```sh
-   r probs/69A
+   r main/69A
    ```
    Muestra ✔ o ✘ por ejemplo; en ✘ te enseña entrada, esperado, tu salida y tu `dbg`.
 5. Envía `sol.cpp` en Codeforces con **GNU G++23 14.2 (64 bit, msys2)**.
@@ -21,8 +21,8 @@
 | Atajo | Nombre largo | Qué hace |
 |---|---|---|
 | `n` | `new` | Solo si la extensión CF de VS Code no está escuchando: espera un problema y termina |
-| `r probs/69A` | `run` | Compila y prueba todos los ejemplos (también `r 69A`, o `r` dentro de la carpeta) |
-| `s probs/69A` | `san` | Igual, pero con sanitizers (crash raro, overflow) |
+| `r main/69A` | `run` | Compila y prueba todos los ejemplos (también `r 69A`, o `r` dentro de la carpeta) |
+| `s main/69A` | `san` | Igual, pero con sanitizers (crash raro, overflow) |
 | `r x.cpp in.txt` | | Ejecuta con una entrada tuya |
 
 Los atajos solo existen en la terminal de VS Code de este proyecto
@@ -36,8 +36,18 @@ Los atajos solo existen en la terminal de VS Code de este proyecto
   y luego acomoda el enunciado y `sol.cpp` lado a lado.
   En la barra de abajo verás **CF**; clic ahí si necesitas reiniciar la escucha.
 
+## Protección de concursos en vivo (hook de git)
+`.tools/hooks/pre-push` revisa antes de cada `git push` si subes algo de `main/<concurso>…/`
+y pregunta a la API de Codeforces si ese concurso ya terminó. Si no, cancela el push;
+tus commits quedan guardados y los subes cuando termine.
+- Al clonar el repositorio en otro computador, actívalo una vez con
+  `git config core.hooksPath .tools/hooks`.
+- Para saltarlo en un caso excepcional: `git push --no-verify`.
+
 ## Carpetas
-- `probs/`    tus problemas (`69A`, `4A`, `sgu100` para acmsguru…)
+- `main/`     problemas del problemset y concursos (`main/69A`, `main/4A`…)
+- `acmsguru/` problemas del archivo acmsguru (`acmsguru/100`…), se crea sola si haces uno
+- `gym/`      problemas de gym (`gym/100001A`…), se crea sola si haces uno
 - `.tools/`   piezas internas; ahí está `template.cpp`, la plantilla de cada problema nuevo
   (el snippet `cp` está en `.vscode/cp.code-snippets`: si cambias uno, cambia el otro)
 - `build/`    programas compilados (se puede borrar)
