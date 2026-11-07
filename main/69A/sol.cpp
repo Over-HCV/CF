@@ -12,27 +12,24 @@ using ll = long long;
 #define dbg(x)
 #endif
 
-// Idea: el cuerpo está en equilibrio si la suma de todas las fuerzas es el
-// vector cero, es decir, si la suma de las x, la de las y y la de las z son 0.
 void solve() {
     int n;
     cin >> n;
-    int sx = 0, sy = 0, sz = 0;
+    int X = 0, Y = 0, Z = 0;
     for (int i = 0; i < n; i++) {
         int x, y, z;
         cin >> x >> y >> z;
-        sx += x;
-        sy += y;
-        sz += z;
+        X += x;
+        Y += y;
+        Z += z;
     }
-    dbg(sx); dbg(sy); dbg(sz);  // solo se ve en tu Mac
-    cout << (sx == 0 && sy == 0 && sz == 0 ? "YES" : "NO") << '\n';
+    cout << (X == 0 && Y == 0 && Z == 0 ? "YES" : "NO") << '\n';
 }
 
 int main() {
     ios::sync_with_stdio(false);
     cin.tie(nullptr);
     int t = 1;
-    // cin >> t;  // este problema tiene un solo caso, por eso va comentado
+    // cin >> t;  // dejar si hay varios casos
     while (t--) solve();
 }
