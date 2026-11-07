@@ -3,9 +3,9 @@ using namespace std;
 using ll = long long;
 
 #ifdef LOCAL
-#define dbg(x) cerr << #x << " = " << (x) << endl
+    #define dbg(x) cerr << #x << " = " << (x) << endl
 #else
-#define dbg(x)
+    #define dbg(x)
 #endif
 
 void solve() {
