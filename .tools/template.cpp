@@ -18,6 +18,6 @@ int main() {
     ios::sync_with_stdio(false);
     cin.tie(nullptr);
     int t = 1;
-    cin >> t;  // quitar si el problema tiene un solo caso
+    cin >> t;  // dejar si hay varios casos
     while (t--) solve();
 }

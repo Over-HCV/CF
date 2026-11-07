@@ -57,10 +57,10 @@ while [[ -f "$dir/$i.in" ]]; do
     else
       echo "✘ Ejemplo $i: respuesta incorrecta"
     fi
-    echo "  --- entrada";   indent < "$dir/$i.in"
+    echo "  === entrada";   indent < "$dir/$i.in"
     echo "  --- esperado";  indent < "$dir/$i.out"
     echo "  --- tu salida"; indent <<<"$got"
-    if [[ -s "$err" ]]; then echo "  --- dbg / errores"; indent < "$err"; fi
+    if [[ -s "$err" ]]; then echo "  ~~~ dbg / errores"; indent < "$err"; fi
   fi
   i=$((i + 1))
 done
