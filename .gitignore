@@ -1,0 +1,5 @@
+build/
+.cph/
+*.bin
+*.dSYM/
+.DS_Store

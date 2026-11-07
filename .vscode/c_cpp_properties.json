@@ -1,0 +1,14 @@
+{
+  "configurations": [
+    {
+      "name": "CF (g++-15)",
+      "compilerPath": "/opt/homebrew/bin/g++-15",
+      "intelliSenseMode": "macos-gcc-arm64",
+      "cStandard": "c17",
+      "cppStandard": "c++23",
+      "defines": ["LOCAL"],
+      "compilerArgs": ["-std=c++23"]
+    }
+  ],
+  "version": 4
+}

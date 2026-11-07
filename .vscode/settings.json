@@ -1,0 +1,18 @@
+{
+  // Competitive Programming Helper (CPH)
+  "cph.general.defaultLanguage": "cpp",
+  "cph.general.templateLocation": "/Volumes/SSD/World/External/Study/CF/template.cpp",
+  "cph.general.useShortCodeForcesName": true,
+  "cph.general.saveLocation": "/Volumes/SSD/World/External/Study/CF/.cph",
+  "cph.language.cpp.Command": "/opt/homebrew/bin/g++-15",
+  "cph.language.cpp.Args": "-std=c++23 -O2 -Wall -Wextra -Wshadow -Wconversion -DLOCAL -D_GLIBCXX_DEBUG -D_GLIBCXX_DEBUG_PEDANTIC -Wl,-stack_size,0x10000000",
+  "cph.language.cpp.SubmissionCompiler": "GNU G++23 14.2 (64 bit, msys2)",
+
+  "C_Cpp.default.compilerPath": "/opt/homebrew/bin/g++-15",
+  "files.exclude": {
+    "build": true,
+    ".cph": true,
+    "**/*.bin": true
+  },
+  "r.lsp.promptToInstall": false
+}
